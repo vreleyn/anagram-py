@@ -1,3 +1,5 @@
+# The main code for the lexer 
+
 class Lexer:
     def __init__(self, code):
         self.code = code
