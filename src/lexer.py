@@ -11,13 +11,29 @@ class Lexer:
     def isdigit(self, char):
         return char >= '0' and char <= '9'
 
+    def isletter(self, char):
+        return (char >= 'a' and char <= 'z') or (char >= 'A' and char <= 'Z')
+
+    def isalnum(self, char):
+        return self.isdigit(char) or self.isletter(char)
+
     def get_token(self, index):
+        char = ''
+        while(self.get_char(self.code, index).isspace()):
+            index += 1
         char = self.get_char(self.code, index)
-        if char >= '0' and char <= '9':
-            return self.get_match_token(index, self.isdigit)
+        if self.isdigit(char):
+            return (index, self.get_match_token(index, self.isdigit))
+        elif self.isletter(char):
+            return (index, self.get_match_token(index, self.isalnum))
         else:
-            return None
+            return (index, Token(char, "file", 0, 0))
         return token
+
+    def get_next_token(self):
+        t = self.get_token(self.index)
+        self.index += len(t.value)
+        return t
 
     def get_char(self, code, index):
         return code[index] if len(code) > index else chr(0)
@@ -29,7 +45,13 @@ class Lexer:
         return Token(self.code[index:index+length], "file", 0, 0)
                
     def get_tokens(self):
-        return None
+        tokens = []
+        index = 0
+        while(index < len(self.code)):
+            (index, token) = self.get_token(index)
+            index += len(token.value)
+            tokens.append(token)
+        return tokens
 
 
 class Token:
@@ -39,3 +61,6 @@ class Token:
 
     def __str__(self):
         return '{' + self.value.__str__() + " " + self.position.__str__() + '}'
+
+    def str(self):
+        return self.__str__()
